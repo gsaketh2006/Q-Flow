@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: qflow_prod_db
+    restart: always
+    environment:
+      POSTGRES_DB: qflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: production_secure_db_password_9988
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    networks:
+      - qflow_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: qflow_prod_backend
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:production_secure_db_password_9988@db:5432/qflow
+      - SYNC_DATABASE_URL=postgresql://postgres:production_secure_db_password_9988@db:5432/qflow
+      - JWT_SECRET_KEY=SECURE_PRODUCTION_JWT_SECRET_KEY_PROD_1234567890abcdef
+      - JWT_REFRESH_SECRET_KEY=SECURE_PRODUCTION_JWT_REFRESH_SECRET_KEY_PROD_0987654321fedcba
+      - ACCESS_TOKEN_EXPIRE_MINUTES=15
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+      # SMTP Config (uncomment and populate in staging/prod)
+      # - SMTP_HOST=
+      # - SMTP_PORT=587
+      # - SMTP_USER=
+      # - SMTP_PASSWORD=
+      # - SMTP_FROM_EMAIL=
+    depends_on:
+      - db
+    networks:
+      - qflow_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: qflow_prod_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - qflow_network
+
+volumes:
+  postgres_prod_data:
+
+networks:
+  qflow_network:
+    driver: bridge

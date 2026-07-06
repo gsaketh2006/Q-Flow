@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  /* Override Slate shades with a premium warm cream, sand, and charcoal scale */
+  --color-slate-50: #1c1815;    /* Very dark brown/charcoal for headings */
+  --color-slate-100: #2b241f;   /* Dark brown/charcoal for primary text */
+  --color-slate-200: #3c322c;   /* Dark gray-brown for secondary text */
+  --color-slate-300: #544941;   
+  --color-slate-400: #73675c;   /* Muted brown-gray for helper text */
+  --color-slate-500: #938578;   /* Muted gray for placeholders */
+  --color-slate-600: #b5a99e;   
+  --color-slate-700: #d6ccbf;   /* Light gray-sand for borders */
+  --color-slate-800: #e8e0d5;   /* Very light sand for borders and dividers */
+  --color-slate-900: #f4eee3;   /* Light beige-cream for card/input backdrops */
+  --color-slate-950: #faf7f0;   /* Light warm cream for page backgrounds */
+
+  /* Override black and white to match the light cream theme */
+  --color-black: #fffdfa;       /* Purest warm cream for deep background glows */
+  --color-white: #1c1815;       /* Literal white text now falls back to dark charcoal for contrast */
+
+  /* Override Indigo with a vibrant orange palette (Hermès / modern style) */
+  --color-indigo-50: #fff5eb;   /* Lightest orange tint for badges and highlights */
+  --color-indigo-100: #ffe6cc;  
+  --color-indigo-200: #ffc499;  
+  --color-indigo-300: #ffa266;  
+  --color-indigo-400: #ff8033;  
+  --color-indigo-500: #ff6b00;  /* Core Brand Orange */
+  --color-indigo-600: #e05e00;  /* Darker orange for hover states */
+  --color-indigo-700: #b84d00;  
+  --color-indigo-800: #8f3c00;  
+  --color-indigo-900: #662b00;  
+  --color-indigo-950: #3d1a00;  
+
+  /* Override Violet with a deep amber/terracotta palette for secondary accents */
+  --color-violet-50: #fff9f0;   
+  --color-violet-100: #ffedd6;  
+  --color-violet-200: #ffd4a3;  
+  --color-violet-300: #ffb870;  
+  --color-violet-400: #ff9d3d;  
+  --color-violet-500: #ff8a00;  /* Secondary Amber */
+  --color-violet-600: #e07900;  
+  --color-violet-750: #b86300;  
+  --color-violet-800: #8f4d00;  
+  --color-violet-900: #663700;  
+  --color-violet-950: #3d2100;  
+}
+
+/* Custom CSS overrides for elements that must have absolute white or absolute black */
+.bg-white {
+  background-color: #ffffff !important;
+}
+.text-white {
+  color: #ffffff !important;
+}
+.border-white {
+  border-color: #ffffff !important;
+}
+
+/* Light theme adjustments for text readability on buttons */
+button.text-white, button .text-white {
+  color: #ffffff !important;
+}
+
+/* Fix any remaining contrast issues for specific tags */
+input {
+  color: #1c1815 !important;
+  background-color: #f4eee3 !important;
+}
+
+input::placeholder {
+  color: #938578 !important;
+}
+
+select {
+  color: #1c1815 !important;
+  background-color: #f4eee3 !important;
+}
