@@ -1,6 +1,6 @@
 # QFlow — Smart Virtual Queue & Appointment Management System
 
-QFlow is a high-performance queue management system designed to reduce lobby congestion, digitize check-ins, and streamline customer flows. Citizens can book appointments online, check in via QR code using their webcam, track their live queue position, and hear audio alerts when their ticket is called.
+QFlow is a high-performance queue management system designed to reduce lobby congestion, digitize check-ins, and streamline customer flows. Designed with a premium, futuristic dark theme inspired by Linear and Vercel, it features glassmorphism panels, Poppins/Inter typography, and Electric Blue/AI Purple gradients. Citizens can book appointments online, check in via QR code using their webcam, track their live queue position, and hear audio alerts when their ticket is called.
 
 ---
 
