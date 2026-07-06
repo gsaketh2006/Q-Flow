@@ -1,77 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  /* Override Slate shades with a premium warm cream, sand, and charcoal scale */
-  --color-slate-50: #1c1815;    /* Very dark brown/charcoal for headings */
-  --color-slate-100: #2b241f;   /* Dark brown/charcoal for primary text */
-  --color-slate-200: #3c322c;   /* Dark gray-brown for secondary text */
-  --color-slate-300: #544941;   
-  --color-slate-400: #73675c;   /* Muted brown-gray for helper text */
-  --color-slate-500: #938578;   /* Muted gray for placeholders */
-  --color-slate-600: #b5a99e;   
-  --color-slate-700: #d6ccbf;   /* Light gray-sand for borders */
-  --color-slate-800: #e8e0d5;   /* Very light sand for borders and dividers */
-  --color-slate-900: #f4eee3;   /* Light beige-cream for card/input backdrops */
-  --color-slate-950: #faf7f0;   /* Light warm cream for page backgrounds */
+  /* Colors - Futuristic Dark Mode Palette */
+  --color-slate-50: #ffffff;
+  --color-slate-100: #f9fafb;   /* Text Primary */
+  --color-slate-200: #f3f4f6;
+  --color-slate-300: #e5e7eb;
+  --color-slate-400: #9ca3af;   /* Text Secondary */
+  --color-slate-500: #6b7280;   
+  --color-slate-600: #4b5563;   
+  --color-slate-700: #374151;   /* Borders */
+  --color-slate-800: #1f2937;   /* Secondary card border */
+  --color-slate-900: #111827;   /* Surface / Card background */
+  --color-slate-950: #0b1120;   /* Midnight Navy Background */
 
-  /* Override black and white to match the light cream theme */
-  --color-black: #fffdfa;       /* Purest warm cream for deep background glows */
-  --color-white: #1c1815;       /* Literal white text now falls back to dark charcoal for contrast */
+  --color-black: #060b13;       /* Pure deep space black */
+  --color-white: #ffffff;
 
-  /* Override Indigo with a vibrant orange palette (Hermès / modern style) */
-  --color-indigo-50: #fff5eb;   /* Lightest orange tint for badges and highlights */
-  --color-indigo-100: #ffe6cc;  
-  --color-indigo-200: #ffc499;  
-  --color-indigo-300: #ffa266;  
-  --color-indigo-400: #ff8033;  
-  --color-indigo-500: #ff6b00;  /* Core Brand Orange */
-  --color-indigo-600: #e05e00;  /* Darker orange for hover states */
-  --color-indigo-700: #b84d00;  
-  --color-indigo-800: #8f3c00;  
-  --color-indigo-900: #662b00;  
-  --color-indigo-950: #3d1a00;  
+  /* Primary Accent: Electric Blue */
+  --color-indigo-50: #eff6ff;
+  --color-indigo-100: #dbeafe;
+  --color-indigo-200: #bfdbfe;
+  --color-indigo-300: #93c5fd;
+  --color-indigo-400: #60a5fa;
+  --color-indigo-500: #3b82f6;   /* Electric Blue Primary */
+  --color-indigo-600: #2563eb;
+  --color-indigo-750: #1d4ed8;
+  --color-indigo-800: #1e40af;
+  --color-indigo-900: #1e3a8a;
+  --color-indigo-950: #172554;
 
-  /* Override Violet with a deep amber/terracotta palette for secondary accents */
-  --color-violet-50: #fff9f0;   
-  --color-violet-100: #ffedd6;  
-  --color-violet-200: #ffd4a3;  
-  --color-violet-300: #ffb870;  
-  --color-violet-400: #ff9d3d;  
-  --color-violet-500: #ff8a00;  /* Secondary Amber */
-  --color-violet-600: #e07900;  
-  --color-violet-750: #b86300;  
-  --color-violet-800: #8f4d00;  
-  --color-violet-900: #663700;  
-  --color-violet-950: #3d2100;  
+  /* Secondary Accent: AI Purple */
+  --color-violet-50: #f5f3ff;
+  --color-violet-100: #ede9fe;
+  --color-violet-200: #ddd6fe;
+  --color-violet-300: #c084fc;
+  --color-violet-400: #a78bfa;
+  --color-violet-500: #8b5cf6;   /* AI Purple Secondary */
+  --color-violet-600: #7c3aed;
+  --color-violet-750: #6d28d9;
+  --color-violet-800: #5b21b6;
+  --color-violet-900: #4c1d95;
+  --color-violet-950: #2e1065;
+
+  /* Cyan Accent */
+  --color-cyan-500: #06b6d4;
+  --color-cyan-600: #0891b2;
+
+  /* Success/Warning/Error */
+  --color-rose-500: #ef4444;    /* Error red */
+  --color-rose-300: #fca5a5;
+  --color-amber-500: #f59e0b;   /* Warning orange */
+  --color-emerald-500: #10b981; /* Success green */
 }
 
-/* Custom CSS overrides for elements that must have absolute white or absolute black */
-.bg-white {
-  background-color: #ffffff !important;
-}
-.text-white {
-  color: #ffffff !important;
-}
-.border-white {
-  border-color: #ffffff !important;
+/* Custom Base Styles & Typography */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #0b1120 !important;
+  color: #f9fafe !important;
+  min-height: 100vh;
 }
 
-/* Light theme adjustments for text readability on buttons */
-button.text-white, button .text-white {
-  color: #ffffff !important;
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
-/* Fix any remaining contrast issues for specific tags */
-input {
-  color: #1c1815 !important;
-  background-color: #f4eee3 !important;
+/* Glassmorphism Class Override */
+.backdrop-blur-xl {
+  background: rgba(17, 24, 39, 0.7) !important;
+  backdrop-filter: blur(18px) !important;
+  border: 1px solid rgba(55, 65, 81, 0.5) !important;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5) !important;
 }
 
-input::placeholder {
-  color: #938578 !important;
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b1120;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #374151;
 }
 
-select {
-  color: #1c1815 !important;
-  background-color: #f4eee3 !important;
+/* Styled Inputs for Dark Theme */
+input, select, textarea {
+  background-color: rgba(6, 11, 19, 0.6) !important;
+  border: 1px solid #374151 !important;
+  color: #f9fafb !important;
+  border-radius: 12px !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px #3b82f6 !important;
+  outline: none;
+}
+
+/* Hover effects for Dashboard cards */
+.hover-glow {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(139, 92, 246, 0.4) !important;
+}
+
+/* Highlighting called items */
+.animate-called {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+    border-color: rgba(139, 92, 246, 0.7);
+  }
 }
