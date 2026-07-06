@@ -21,7 +21,11 @@ from app.models.audit_log import AuditLog
 
 async def seed_db() -> None:
     print("Connecting to database for seeding...")
-    engine = create_async_engine(settings.DATABASE_URL, echo=True)
+    db_url = settings.DATABASE_URL
+    if db_url.startswith("postgresql://"):
+        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        
+    engine = create_async_engine(db_url, echo=True)
     async_session = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
