@@ -10,7 +10,7 @@ vi.mock('../hooks/useAuth', () => ({
 
 describe('ProtectedRoute', () => {
   it('redirects to /login when unauthenticated', () => {
-    (useAuth as any).mockReturnValue({
+    useAuth.mockReturnValue({
       isAuthenticated: false,
       isLoading: false,
       user: null,
@@ -36,7 +36,7 @@ describe('ProtectedRoute', () => {
   });
 
   it('renders children when authenticated with correct role', () => {
-    (useAuth as any).mockReturnValue({
+    useAuth.mockReturnValue({
       isAuthenticated: true,
       isLoading: false,
       user: { id: 1, email: 'admin@test.com', role_name: 'admin' },

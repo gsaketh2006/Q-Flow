@@ -2,13 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { X } from 'lucide-react';
 
-interface CameraScannerProps {
-  onScanSuccess: (decodedText: string) => void;
-  onClose: () => void;
-}
-
-export const CameraScanner: React.FC<CameraScannerProps> = ({ onScanSuccess, onClose }) => {
-  const scannerRef = useRef<Html5Qrcode | null>(null);
+export const CameraScanner = ({ onScanSuccess, onClose }) => {
+  const scannerRef = useRef(null);
 
   const stopScanner = async () => {
     if (scannerRef.current && scannerRef.current.isScanning) {
@@ -80,7 +75,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({ onScanSuccess, onC
           {/* Glowing scan target line */}
           <div className="absolute inset-x-8 top-1/2 h-0.5 bg-indigo-500 animate-pulse shadow-md shadow-indigo-500/50 pointer-events-none"></div>
         </div>
-        
+
         <p className="text-slate-500 text-[10px]">Using system media web-camera</p>
       </div>
     </div>

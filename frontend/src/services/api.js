@@ -1,10 +1,12 @@
-const BASE_URL = 'http://localhost:8000/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api/v1`
+  : 'http://localhost:8000/api/v1';
 
-let accessToken: string | null = null;
+let accessToken = null;
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshSubscribers = [];
 
-export function setAccessToken(token: string | null) {
+export function setAccessToken(token) {
   accessToken = token;
   if (token) {
     localStorage.setItem('qflow_logged_in', 'true');
@@ -13,30 +15,26 @@ export function setAccessToken(token: string | null) {
   }
 }
 
-export function getAccessToken(): string | null {
+export function getAccessToken() {
   return accessToken;
 }
 
-export function hasSessionIndicator(): boolean {
+export function hasSessionIndicator() {
   return localStorage.getItem('qflow_logged_in') === 'true';
 }
 
-function subscribeTokenRefresh(cb: (token: string) => void) {
+function subscribeTokenRefresh(cb) {
   refreshSubscribers.push(cb);
 }
 
-function onRefreshed(token: string) {
+function onRefreshed(token) {
   refreshSubscribers.forEach((cb) => cb(token));
   refreshSubscribers = [];
 }
 
-interface RequestOptions extends RequestInit {
-  params?: Record<string, string | number | boolean>;
-}
-
-export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+export async function apiRequest(endpoint, options = {}) {
   const { params, headers, ...rest } = options;
-  
+
   let url = `${BASE_URL}${endpoint}`;
   if (params) {
     const searchParams = new URLSearchParams();
@@ -46,11 +44,11 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     url += `?${searchParams.toString()}`;
   }
 
-  const defaultHeaders: Record<string, string> = {};
+  const defaultHeaders = {};
   if (!(options.body instanceof FormData)) {
     defaultHeaders['Content-Type'] = 'application/json';
   }
-  
+
   if (accessToken) {
     defaultHeaders['Authorization'] = `Bearer ${accessToken}`;
   }
@@ -78,7 +76,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
           });
 
           if (refreshRes.ok) {
-            const data = await refreshRes.json() as { access_token: string };
+            const data = await refreshRes.json();
             setAccessToken(data.access_token);
             isRefreshing = false;
             onRefreshed(data.access_token);
@@ -97,7 +95,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
       }
 
       // Return a promise that resolves when the token refresh finishes
-      return new Promise<T>((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         subscribeTokenRefresh((token) => {
           const retryHeaders = {
             ...finalHeaders,
@@ -111,9 +109,9 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
               }
               const contentType = res.headers.get('content-type');
               if (contentType && contentType.includes('application/json')) {
-                return resolve(res.json() as Promise<T>);
+                return resolve(res.json());
               }
-              return resolve({} as T);
+              return resolve({});
             })
             .catch(reject);
         });
@@ -127,9 +125,9 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
 
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
-      return response.json() as Promise<T>;
+      return response.json();
     }
-    return {} as Promise<T>;
+    return {};
   } catch (error) {
     throw error;
   }

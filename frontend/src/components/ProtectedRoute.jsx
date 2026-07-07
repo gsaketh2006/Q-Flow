@@ -2,15 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  allowedRoles?: ('citizen' | 'staff' | 'admin')[];
-}
-
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  children,
-  allowedRoles,
-}) => {
+export const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 

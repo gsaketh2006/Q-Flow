@@ -1,27 +1,14 @@
 import React, { createContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
-import type { User } from '../types/auth';
 import { loginUser, registerUser, logoutUser, refreshSession } from '../services/auth';
 import { hasSessionIndicator } from '../services/api';
 
-export interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (userData: any) => Promise<void>;
-  logout: () => Promise<void>;
-  clearError: () => void;
-}
+export const AuthContext = createContext(undefined);
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Initialize and check for existing session
   useEffect(() => {
@@ -45,8 +32,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     initSession();
-    
-    // Subscribe to auto-logout event emitted by api.ts when refresh fails
+
+    // Subscribe to auto-logout event emitted by api.js when refresh fails
     const handleAutoLogout = () => {
       setUser(null);
       setIsAuthenticated(false);
@@ -59,14 +46,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email, password) => {
     setIsLoading(true);
     setError(null);
     try {
       const currentUser = await loginUser(email, password);
       setUser(currentUser);
       setIsAuthenticated(true);
-    } catch (err: any) {
+    } catch (err) {
       setError(err?.detail || 'Login failed. Please check your credentials.');
       setUser(null);
       setIsAuthenticated(false);
@@ -76,14 +63,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const register = async (userData: any) => {
+  const register = async (userData) => {
     setIsLoading(true);
     setError(null);
     try {
       await registerUser(userData);
       // Automatically log in after registration
       await login(userData.email, userData.password);
-    } catch (err: any) {
+    } catch (err) {
       setError(err?.detail || 'Registration failed.');
       throw err;
     } finally {
@@ -124,4 +111,5 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     </AuthContext.Provider>
   );
 };
+
 export default AuthContext;
