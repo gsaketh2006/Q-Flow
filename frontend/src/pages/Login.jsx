@@ -32,7 +32,7 @@ export const Login = () => {
     try {
       await login(email, password);
       navigate(from, { replace: true });
-    } catch (err) {
+    } catch {
       // Error handled by AuthContext
     } finally {
       setIsLoading(false);
@@ -65,7 +65,7 @@ export const Login = () => {
         <div className="backdrop-blur-xl bg-slate-900/60 p-8 rounded-3xl border border-slate-800 shadow-2xl">
           <h2 className="text-xl font-bold text-white mb-6">Sign In</h2>
 
-          {(successMessage || validationError || authError) && (
+          {successMessage && (
             <div className="mb-4 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm rounded-2xl animate-fade-in">
               {successMessage}
             </div>

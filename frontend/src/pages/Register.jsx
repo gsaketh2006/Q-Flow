@@ -46,16 +46,17 @@ export const Register = () => {
         language_pref: languagePref,
         password,
       });
+
+      // If auto-login worked, navigate to home; otherwise redirect to login
       if (result?.autoLoggedIn) {
         navigate('/', { replace: true });
       } else {
-        navigate('/login', {
-          replace: true,
-          state: { message: 'Account created successfully. Please sign in.' },
-        });
+        navigate('/login', { replace: true, state: { message: 'Registration successful! Please log in.' } });
       }
     } catch (err) {
-      // Error handled by AuthContext
+      // Show the error returned from the backend (e.g. "email already exists")
+      const msg = err?.detail || err?.message || 'Registration failed. Please try again.';
+      setValidationError(msg);
     } finally {
       setIsLoading(false);
     }

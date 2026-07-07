@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
             setIsAuthenticated(false);
           }
-        } catch (err) {
+        } catch {
           setUser(null);
           setIsAuthenticated(false);
         }
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
         // Automatically log in after registration when possible.
         await login(userData.email, userData.password);
         return { registered: true, autoLoggedIn: true };
-      } catch (loginErr) {
+      } catch {
         // Registration succeeded; keep the user signed out and let the UI guide them to login.
         setUser(null);
         setIsAuthenticated(false);

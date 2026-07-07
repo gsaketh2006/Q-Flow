@@ -6,14 +6,15 @@ from typing import Optional
 
 from app.db.session import get_db
 from app.models.role import Role
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, UserWithRoleResponse
 from app.schemas.auth import Token, ForgotPasswordRequest, ResetPasswordRequest, MessageResponse
 from app.services import user as user_service
 from app.services import auth as auth_service
+from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=UserWithRoleResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     user_in: UserCreate,
     db: AsyncSession = Depends(get_db)
@@ -65,7 +66,7 @@ async def login(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True,
+        secure=settings.AUTH_COOKIE_SECURE,
         samesite="lax",
         max_age=7 * 24 * 60 * 60,  # 7 days in seconds
         path="/api/v1/auth"  # restrict scope to auth paths
@@ -97,7 +98,7 @@ async def refresh(
         key="refresh_token",
         value=new_refresh_token,
         httponly=True,
-        secure=True,
+        secure=settings.AUTH_COOKIE_SECURE,
         samesite="lax",
         max_age=7 * 24 * 60 * 60,  # 7 days
         path="/api/v1/auth"
@@ -120,7 +121,7 @@ async def logout(
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        secure=True,
+        secure=settings.AUTH_COOKIE_SECURE,
         samesite="lax",
         path="/api/v1/auth"
     )

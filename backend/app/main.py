@@ -18,15 +18,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Set CORS origins
-if settings.BACKEND_CORS_ORIGINS:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.BACKEND_CORS_ORIGINS,
-        allow_credentials=True,
-        allow_headers=["*"],
-        allow_methods=["*"],
-    )
+# Always apply CORS middleware — BACKEND_CORS_ORIGINS is now a property
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_credentials=True,
+    allow_headers=["*"],
+    allow_methods=["*"],
+)
 
 # Include routers
 app.include_router(auth_router, prefix=settings.API_V1_STR)

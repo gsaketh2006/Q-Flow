@@ -35,13 +35,24 @@ class Settings(BaseSettings):
     )
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    AUTH_COOKIE_SECURE: bool = Field(default=False, validation_alias="AUTH_COOKIE_SECURE")
 
-    # CORS
-    BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:5173",  # Vite default dev server
-        "http://localhost:3000",
-        "http://127.0.0.1:5173",
-    ]
+    # Frontend URL — set this in Render env vars to your full Vercel deployment URL
+    # e.g. FRONTEND_URL=https://q-flow.vercel.app
+    FRONTEND_URL: str = Field(default="", validation_alias="FRONTEND_URL")
+
+    # CORS — always includes localhost dev origins; adds FRONTEND_URL if provided
+    @property
+    def BACKEND_CORS_ORIGINS(self) -> List[str]:
+        origins = [
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:3000",
+        ]
+        if self.FRONTEND_URL:
+            origins.append(self.FRONTEND_URL.rstrip("/"))
+        return origins
 
     # SMTP Configuration
     SMTP_HOST: str = Field(default="", validation_alias="SMTP_HOST")
