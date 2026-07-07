@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 from app.db.session import get_db
+from app.models.role import Role
 from app.schemas.user import UserCreate, UserResponse
 from app.schemas.auth import Token, ForgotPasswordRequest, ResetPasswordRequest, MessageResponse
 from app.services import user as user_service
@@ -25,9 +27,15 @@ async def register(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A user with this email already exists."
         )
+
+    role_result = await db.execute(select(Role).where(Role.name == "citizen"))
+    citizen_role = role_result.scalar_one_or_none()
+    if citizen_role is None:
+        citizen_role = Role(name="citizen")
+        db.add(citizen_role)
+        await db.flush()
     
-    # Defaults to role_id=1 (citizen)
-    new_user = await user_service.create_user(db, user_in, role_id=1)
+    new_user = await user_service.create_user(db, user_in, role_id=citizen_role.id)
     return new_user
 
 @router.post("/login", response_model=Token)
