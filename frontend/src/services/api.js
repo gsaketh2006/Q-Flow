@@ -62,6 +62,7 @@ export async function apiRequest(endpoint, options = {}) {
     const response = await fetch(url, {
       ...rest,
       headers: finalHeaders,
+      credentials: 'include', // Required for httpOnly refresh_token cookie to be sent cross-origin
     });
 
     // Handle token refresh on 401 Unauthorized (unless it's already a login or refresh request)
@@ -73,6 +74,7 @@ export async function apiRequest(endpoint, options = {}) {
           const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include', // Send httpOnly refresh_token cookie
           });
 
           if (refreshRes.ok) {
@@ -101,7 +103,7 @@ export async function apiRequest(endpoint, options = {}) {
             ...finalHeaders,
             'Authorization': `Bearer ${token}`,
           };
-          fetch(url, { ...rest, headers: retryHeaders })
+          fetch(url, { ...rest, headers: retryHeaders, credentials: 'include' })
             .then(async (res) => {
               if (!res.ok) {
                 const errorData = await res.json().catch(() => ({ detail: 'An error occurred' }));

@@ -19,6 +19,8 @@ export const PublicQueueBoard = () => {
 
   // Ref to track serving tickets to trigger audio announcements
   const previousServingRef = useRef([]);
+  // Ref for audio state used inside WebSocket handler to avoid reconnects on toggle
+  const isAudioEnabledRef = useRef(false);
 
   // Fetch offices list
   useEffect(() => {
@@ -47,7 +49,11 @@ export const PublicQueueBoard = () => {
 
     // 2. Setup WebSocket connection
     setConnectionStatus('connecting');
-    const wsUrl = `ws://localhost:8000/api/v1/queue/ws/${selectedOffice.id}`;
+
+    // Build WS URL from environment variable (strips http/https and replaces with ws/wss)
+    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const wsBase = apiBase.replace(/^https/, 'wss').replace(/^http/, 'ws');
+    const wsUrl = `${wsBase}/api/v1/queue/ws/${selectedOffice.id}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -59,12 +65,12 @@ export const PublicQueueBoard = () => {
         const payload = JSON.parse(event.data);
         if (payload.type === 'queue_update' && payload.data) {
           const newBoard = payload.data;
-          
-          // Audio announcement check
-          if (isAudioEnabled) {
+
+          // Use ref to check audio state — avoids stale closure & WS reconnect on toggle
+          if (isAudioEnabledRef.current) {
             announceNewTickets(newBoard.now_serving);
           }
-          
+
           setBoard(newBoard);
         }
       } catch (err) {
@@ -83,7 +89,7 @@ export const PublicQueueBoard = () => {
     return () => {
       ws.close();
     };
-  }, [selectedOffice, isAudioEnabled]);
+  }, [selectedOffice]); // ← Only reconnect when office changes, not on audio toggle
 
   // Text-To-Speech announcement helper
   const announceNewTickets = (currentServing) => {
@@ -184,8 +190,10 @@ export const PublicQueueBoard = () => {
             {/* Audio Toggle */}
             <button
               onClick={() => {
-                setIsAudioEnabled(!isAudioEnabled);
-                if (!isAudioEnabled) playNotificationBeep();
+                const next = !isAudioEnabled;
+                setIsAudioEnabled(next);
+                isAudioEnabledRef.current = next; // Keep ref in sync
+                if (next) playNotificationBeep();
               }}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 isAudioEnabled 

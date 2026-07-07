@@ -37,7 +37,19 @@ async def register(
         await db.flush()
     
     new_user = await user_service.create_user(db, user_in, role_id=citizen_role.id)
-    return new_user
+    # Return explicit dict so Pydantic can serialize role_name from the relationship
+    return {
+        "id": new_user.id,
+        "email": new_user.email,
+        "full_name": new_user.full_name,
+        "phone": new_user.phone,
+        "language_pref": new_user.language_pref,
+        "role_id": new_user.role_id,
+        "role_name": new_user.role.name,
+        "is_active": new_user.is_active,
+        "created_at": new_user.created_at,
+        "updated_at": new_user.updated_at,
+    }
 
 @router.post("/login", response_model=Token)
 async def login(

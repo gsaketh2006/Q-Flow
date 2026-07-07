@@ -7,7 +7,7 @@ import {
   LogOut, Layers, Power, RefreshCw, CheckCircle, 
   User, Search, AlertCircle, Play, Check, X, Timer, Camera
 } from 'lucide-react';
-import CameraScanner from '../components/CameraScanner';
+import CameraScanner from '../components/CameraScanner.jsx';
 
 export const StaffDashboard = () => {
   const { logout } = useAuth();
@@ -200,23 +200,22 @@ export const StaffDashboard = () => {
   // --- MANUAL SEARCH & CHECK-IN ---
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!searchQuery) return;
+    if (!searchQuery.trim()) return;
     setIsSearching(true);
     setSearchError(null);
     try {
-      const appts = await getAppointments({
-        office_id: selectedOffice?.id,
-        status_filter: 'confirmed',
-      });
-      const query = searchQuery.toLowerCase();
-      const filtered = appts.filter(
-        (a) =>
-          a.id.toString() === query ||
-          a.citizen_name?.toLowerCase().includes(query)
-      );
+      const query = searchQuery.trim().toLowerCase();
+      // Fetch confirmed AND checked_in appointments for this office
+      const [confirmedAppts, checkedInAppts] = await Promise.all([
+        getAppointments({ office_id: selectedOffice?.id, status_filter: 'confirmed' }),
+        getAppointments({ office_id: selectedOffice?.id, status_filter: 'checked_in' }),
+      ]);
+      const allAppts = [...confirmedAppts, ...checkedInAppts];
+      // Filter by appointment ID (numeric match) only — name is not in AppointmentResponse
+      const filtered = allAppts.filter((a) => a.id.toString() === query);
       setSearchAppointments(filtered);
       if (filtered.length === 0) {
-        setSearchError('No matching active bookings found.');
+        setSearchError('No matching active bookings found. Try searching by Appointment ID.');
       }
     } catch (err) {
       setSearchError('Search request failed.');
