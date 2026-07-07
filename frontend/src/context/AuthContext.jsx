@@ -68,8 +68,17 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       await registerUser(userData);
-      // Automatically log in after registration
-      await login(userData.email, userData.password);
+      try {
+        // Automatically log in after registration when possible.
+        await login(userData.email, userData.password);
+        return { registered: true, autoLoggedIn: true };
+      } catch (loginErr) {
+        // Registration succeeded; keep the user signed out and let the UI guide them to login.
+        setUser(null);
+        setIsAuthenticated(false);
+        setError(null);
+        return { registered: true, autoLoggedIn: false };
+      }
     } catch (err) {
       setError(err?.detail || 'Registration failed.');
       throw err;

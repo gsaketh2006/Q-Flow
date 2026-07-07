@@ -16,6 +16,7 @@ export const Login = () => {
 
   // Retrieve the redirect path, default to citizen dashboard "/"
   const from = location.state?.from?.pathname || '/';
+  const successMessage = location.state?.message;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,6 +64,12 @@ export const Login = () => {
         {/* Login Card */}
         <div className="backdrop-blur-xl bg-slate-900/60 p-8 rounded-3xl border border-slate-800 shadow-2xl">
           <h2 className="text-xl font-bold text-white mb-6">Sign In</h2>
+
+          {(successMessage || validationError || authError) && (
+            <div className="mb-4 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm rounded-2xl animate-fade-in">
+              {successMessage}
+            </div>
+          )}
 
           {(validationError || authError) && (
             <div className="mb-4 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm rounded-2xl animate-fade-in">

@@ -39,14 +39,21 @@ export const Register = () => {
 
     setIsLoading(true);
     try {
-      await register({
+      const result = await register({
         email,
         full_name: fullName,
         phone: phone || undefined,
         language_pref: languagePref,
         password,
       });
-      navigate('/', { replace: true });
+      if (result?.autoLoggedIn) {
+        navigate('/', { replace: true });
+      } else {
+        navigate('/login', {
+          replace: true,
+          state: { message: 'Account created successfully. Please sign in.' },
+        });
+      }
     } catch (err) {
       // Error handled by AuthContext
     } finally {
