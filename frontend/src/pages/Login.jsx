@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from 'lucide-react';
 
-export const Login: React.FC = () => {
+export const Login = () => {
   const { login, error: authError, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Retrieve the redirect path, default to citizen dashboard "/"
-  const from = (location.state as any)?.from?.pathname || '/';
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Retrieve the redirect path, default to citizen dashboard "/"
+  const from = location.state?.from?.pathname || '/';
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     clearError();
     setValidationError(null);
@@ -56,14 +56,14 @@ export const Login: React.FC = () => {
             Welcome to QFlow
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            Smart Queue & Appointment Management System
+            Smart Queue &amp; Appointment Management System
           </p>
         </div>
 
         {/* Login Card */}
         <div className="backdrop-blur-xl bg-slate-900/60 p-8 rounded-3xl border border-slate-800 shadow-2xl">
           <h2 className="text-xl font-bold text-white mb-6">Sign In</h2>
-          
+
           {(validationError || authError) && (
             <div className="mb-4 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm rounded-2xl animate-fade-in">
               {validationError || authError}
@@ -151,7 +151,7 @@ export const Login: React.FC = () => {
 
           {/* Switch to Register */}
           <div className="text-center mt-6 text-sm text-slate-400">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link
               to="/register"
               className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"

@@ -1,26 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getOffices } from '../services/offices';
 import { getLiveQueue } from '../services/queue';
-import type { Office } from '../types/office';
-import type { PublicQueueBoard as BoardType, PublicServingTicket } from '../types/queue';
 import { 
   Volume2, VolumeX, Monitor, MapPin, Users, 
   Clock, ArrowRight, ArrowLeft
 } from 'lucide-react';
 
-export const PublicQueueBoard: React.FC = () => {
-  const { officeId: routeOfficeId } = useParams<{ officeId?: string }>();
+export const PublicQueueBoard = () => {
+  const { officeId: routeOfficeId } = useParams();
   
   // States
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
-  const [board, setBoard] = useState<BoardType>({ now_serving: [], waiting_list: [] });
+  const [offices, setOffices] = useState([]);
+  const [selectedOffice, setSelectedOffice] = useState(null);
+  const [board, setBoard] = useState({ now_serving: [], waiting_list: [] });
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
 
   // Ref to track serving tickets to trigger audio announcements
-  const previousServingRef = useRef<number[]>([]);
+  const previousServingRef = useRef([]);
 
   // Fetch offices list
   useEffect(() => {
@@ -60,7 +58,7 @@ export const PublicQueueBoard: React.FC = () => {
       try {
         const payload = JSON.parse(event.data);
         if (payload.type === 'queue_update' && payload.data) {
-          const newBoard = payload.data as BoardType;
+          const newBoard = payload.data;
           
           // Audio announcement check
           if (isAudioEnabled) {
@@ -88,11 +86,10 @@ export const PublicQueueBoard: React.FC = () => {
   }, [selectedOffice, isAudioEnabled]);
 
   // Text-To-Speech announcement helper
-  const announceNewTickets = (currentServing: PublicServingTicket[]) => {
+  const announceNewTickets = (currentServing) => {
     currentServing.forEach((ticket) => {
       const isNew = !previousServingRef.current.includes(ticket.id);
       if (isNew && ticket.status === 'called') {
-        // Speak ticket callout
         const phrase = `Ticket number ${ticket.ticket_number.split('').join(' ')}, please proceed to ${ticket.counter_name}`;
         
         // Play simple notification beep using Web Audio API
@@ -114,7 +111,8 @@ export const PublicQueueBoard: React.FC = () => {
 
   const playNotificationBeep = () => {
     try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContextClass();
       
       // Tone 1
       const osc1 = audioCtx.createOscillator();
@@ -187,7 +185,6 @@ export const PublicQueueBoard: React.FC = () => {
             <button
               onClick={() => {
                 setIsAudioEnabled(!isAudioEnabled);
-                // Trigger quick beep to unlock synthesis browser policy
                 if (!isAudioEnabled) playNotificationBeep();
               }}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${

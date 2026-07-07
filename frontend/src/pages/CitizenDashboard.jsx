@@ -1,47 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { getAppointments, createAppointment, cancelAppointment, checkInAppointment } from '../services/appointments';
 import { getOffices } from '../services/offices';
 import { getServices } from '../services/services';
-import type { Appointment } from '../types/appointment';
-import type { Office } from '../types/office';
-import type { Service } from '../types/service';
 import { 
   LogOut, User as UserIcon, Calendar, Clock, MapPin, 
   Plus, X, Check, AlertCircle, QrCode
 } from 'lucide-react';
 
-export const CitizenDashboard: React.FC = () => {
+export const CitizenDashboard = () => {
   const { user, logout } = useAuth();
   
   // States
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
+  const [appointments, setAppointments] = useState([]);
+  const [offices, setOffices] = useState([]);
+  const [services, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   
   // Booking Wizard States
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [bookingStep, setBookingStep] = useState(1);
-  const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedOffice, setSelectedOffice] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
   const [bookingDate, setBookingDate] = useState('');
   const [bookingTime, setBookingTime] = useState('');
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
   
   // QR Code / Check-in Modal States
-  const [activeQrAppt, setActiveQrAppt] = useState<Appointment | null>(null);
-  const [checkInResult, setCheckInResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [activeQrAppt, setActiveQrAppt] = useState(null);
+  const [checkInResult, setCheckInResult] = useState(null);
   const [isCheckingIn, setIsCheckingIn] = useState(false);
 
   // Fetch Citizen appointments
   const fetchAppointments = async () => {
     try {
       const data = await getAppointments();
-      // Only keep non-completed / non-cancelled active or pending ones on top
       setAppointments(data);
-    } catch (err: any) {
+    } catch (err) {
       setError(err?.detail || 'Failed to fetch appointments');
     }
   };
@@ -54,7 +50,7 @@ export const CitizenDashboard: React.FC = () => {
         await fetchAppointments();
         const officesData = await getOffices();
         setOffices(officesData);
-      } catch (err: any) {
+      } catch (err) {
         setError(err?.detail || 'Failed to load dashboard data');
       } finally {
         setIsLoading(false);
@@ -75,29 +71,28 @@ export const CitizenDashboard: React.FC = () => {
   }, [selectedOffice]);
 
   // Cancel Appointment handler
-  const handleCancel = async (apptId: number) => {
+  const handleCancel = async (apptId) => {
     if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
     try {
       await cancelAppointment(apptId);
       await fetchAppointments();
-    } catch (err: any) {
+    } catch (err) {
       alert(err?.detail || 'Cancellation failed');
     }
   };
 
   // self check-in handler
-  const handleSelfCheckIn = async (appt: Appointment) => {
+  const handleSelfCheckIn = async (appt) => {
     setIsCheckingIn(true);
     setCheckInResult(null);
     try {
-      // Calls check-in using the qr_code_token
       const queueEntry = await checkInAppointment(appt.id, appt.qr_code_token);
       setCheckInResult({
         success: true,
         message: `Checked in successfully! You are at position ${queueEntry.position}. Estimated wait: ${queueEntry.estimated_wait_minutes} minutes.`
       });
       await fetchAppointments();
-    } catch (err: any) {
+    } catch (err) {
       setCheckInResult({
         success: false,
         message: err?.detail || 'Check-in failed. Ensure you are at the office during the check-in window.'
@@ -108,14 +103,13 @@ export const CitizenDashboard: React.FC = () => {
   };
 
   // Submit Booking handler
-  const handleBookAppointment = async (e: React.FormEvent) => {
+  const handleBookAppointment = async (e) => {
     e.preventDefault();
     if (!selectedOffice || !selectedService || !bookingDate || !bookingTime) return;
     
     setIsSubmittingBooking(true);
     setError(null);
     try {
-      // Combine date and time
       const scheduledTime = new Date(`${bookingDate}T${bookingTime}`).toISOString();
       await createAppointment({
         office_id: selectedOffice.id,
@@ -132,7 +126,7 @@ export const CitizenDashboard: React.FC = () => {
       setBookingTime('');
       
       await fetchAppointments();
-    } catch (err: any) {
+    } catch (err) {
       setError(err?.detail || 'Booking failed. Make sure the date is not a holiday.');
     } finally {
       setIsSubmittingBooking(false);
@@ -288,7 +282,7 @@ export const CitizenDashboard: React.FC = () => {
             <div className="space-y-2 text-sm text-slate-400 border-t border-slate-800/60 pt-4">
               <div><strong>Email:</strong> {user?.email}</div>
               <div><strong>Phone:</strong> {user?.phone || 'Not provided'}</div>
-              <div><strong>Language:</strong> {user?.language_pref.toUpperCase()}</div>
+              <div><strong>Language:</strong> {user?.language_pref?.toUpperCase()}</div>
             </div>
           </div>
 
@@ -395,7 +389,7 @@ export const CitizenDashboard: React.FC = () => {
                 {/* STEP 3: SCHEDULE TIME */}
                 {bookingStep === 3 && (
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Select Date & Time</h3>
+                    <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Select Date &amp; Time</h3>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Date</label>
@@ -485,7 +479,7 @@ export const CitizenDashboard: React.FC = () => {
               <X size={20} />
             </button>
 
-            <h3 className="text-lg font-bold text-white mb-2">QR Code & Check-In</h3>
+            <h3 className="text-lg font-bold text-white mb-2">QR Code &amp; Check-In</h3>
             <p className="text-slate-400 text-xs mb-6">Present this QR code to the scanner, or click self check-in.</p>
 
             {/* Dynamic Real QR Code rendering via open api */}

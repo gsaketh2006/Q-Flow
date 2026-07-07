@@ -1,43 +1,40 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { getOffices, getCounters } from '../services/offices';
 import { getActiveQueue, callNextTicket, startService, completeService, skipService } from '../services/queue';
 import { getAppointments, checkInAppointment } from '../services/appointments';
-import type { Office, Counter } from '../types/office';
-import type { QueueEntryWithDetails } from '../types/queue';
-import type { Appointment } from '../types/appointment';
 import { 
   LogOut, Layers, Power, RefreshCw, CheckCircle, 
   User, Search, AlertCircle, Play, Check, X, Timer, Camera
 } from 'lucide-react';
 import CameraScanner from '../components/CameraScanner';
 
-export const StaffDashboard: React.FC = () => {
+export const StaffDashboard = () => {
   const { logout } = useAuth();
 
   // Settings / Setup States
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [counters, setCounters] = useState<Counter[]>([]);
-  const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
-  const [selectedCounter, setSelectedCounter] = useState<Counter | null>(null);
+  const [offices, setOffices] = useState([]);
+  const [counters, setCounters] = useState([]);
+  const [selectedOffice, setSelectedOffice] = useState(null);
+  const [selectedCounter, setSelectedCounter] = useState(null);
   const [isCounterSetup, setIsCounterSetup] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
 
   // Live Queue & Serving States
-  const [queue, setQueue] = useState<QueueEntryWithDetails[]>([]);
-  const [activeTicket, setActiveTicket] = useState<QueueEntryWithDetails | null>(null);
+  const [queue, setQueue] = useState([]);
+  const [activeTicket, setActiveTicket] = useState(null);
   const [isLoadingQueue, setIsLoadingQueue] = useState(false);
-  const [queueError, setQueueError] = useState<string | null>(null);
+  const [queueError, setQueueError] = useState(null);
 
   // Timer States
   const [serviceSeconds, setServiceSeconds] = useState(0);
-  const timerRef = useRef<number | null>(null);
+  const timerRef = useRef(null);
 
   // Manual Check-In States
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchAppointments, setSearchAppointments] = useState<Appointment[]>([]);
+  const [searchAppointments, setSearchAppointments] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchError, setSearchError] = useState(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   // Load setup data
@@ -73,7 +70,7 @@ export const StaffDashboard: React.FC = () => {
   }, []);
 
   // Fetch counters when office changes
-  const handleOfficeChange = async (office: Office) => {
+  const handleOfficeChange = async (office) => {
     setSelectedOffice(office);
     setSelectedCounter(null);
     try {
@@ -101,7 +98,6 @@ export const StaffDashboard: React.FC = () => {
     try {
       const entries = await getActiveQueue(selectedOffice.id);
       
-      // Separate the current ticket served by this counter, if any
       const servingOnMyCounter = entries.find(
         (e) => e.counter_id === selectedCounter?.id && ['called', 'processing'].includes(e.status)
       );
@@ -111,9 +107,8 @@ export const StaffDashboard: React.FC = () => {
         setActiveTicket(null);
       }
 
-      // Remaining waiting list
       setQueue(entries.filter((e) => e.status === 'waiting'));
-    } catch (err: any) {
+    } catch (err) {
       setQueueError(err?.detail || 'Failed to fetch queue list');
     } finally {
       setIsLoadingQueue(false);
@@ -122,12 +117,12 @@ export const StaffDashboard: React.FC = () => {
 
   // Poll for queue changes when online
   useEffect(() => {
-    let interval: number;
+    let interval;
     if (isCounterSetup && selectedOffice) {
       fetchQueueList();
       interval = window.setInterval(() => {
         fetchQueueList();
-      }, 8000); // Poll every 8 seconds
+      }, 8000);
     }
     return () => clearInterval(interval);
   }, [isCounterSetup, selectedOffice, selectedCounter]);
@@ -135,7 +130,6 @@ export const StaffDashboard: React.FC = () => {
   // Serve Timer control
   useEffect(() => {
     if (activeTicket?.status === 'processing') {
-      // Start ticking
       setServiceSeconds(0);
       timerRef.current = window.setInterval(() => {
         setServiceSeconds((prev) => prev + 1);
@@ -151,7 +145,7 @@ export const StaffDashboard: React.FC = () => {
     };
   }, [activeTicket?.status]);
 
-  const formatTimer = (seconds: number) => {
+  const formatTimer = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
@@ -165,7 +159,7 @@ export const StaffDashboard: React.FC = () => {
       const entry = await callNextTicket(selectedCounter.id);
       setActiveTicket(entry);
       await fetchQueueList();
-    } catch (err: any) {
+    } catch (err) {
       alert(err?.detail || 'No citizens waiting in line.');
     }
   };
@@ -175,7 +169,7 @@ export const StaffDashboard: React.FC = () => {
     try {
       await startService(activeTicket.id);
       await fetchQueueList();
-    } catch (err: any) {
+    } catch (err) {
       alert(err?.detail || 'Failed to start service.');
     }
   };
@@ -186,7 +180,7 @@ export const StaffDashboard: React.FC = () => {
       await completeService(activeTicket.id);
       setActiveTicket(null);
       await fetchQueueList();
-    } catch (err: any) {
+    } catch (err) {
       alert(err?.detail || 'Failed to complete service.');
     }
   };
@@ -198,29 +192,27 @@ export const StaffDashboard: React.FC = () => {
       await skipService(activeTicket.id);
       setActiveTicket(null);
       await fetchQueueList();
-    } catch (err: any) {
+    } catch (err) {
       alert(err?.detail || 'Failed to skip ticket.');
     }
   };
 
   // --- MANUAL SEARCH & CHECK-IN ---
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery) return;
     setIsSearching(true);
     setSearchError(null);
     try {
-      // Find today's pending/confirmed appointments
       const appts = await getAppointments({
         office_id: selectedOffice?.id,
         status_filter: 'confirmed',
       });
-      // Filter in memory for matching name or ID
       const query = searchQuery.toLowerCase();
       const filtered = appts.filter(
         (a) =>
           a.id.toString() === query ||
-          (a as any).citizen_name?.toLowerCase().includes(query)
+          a.citizen_name?.toLowerCase().includes(query)
       );
       setSearchAppointments(filtered);
       if (filtered.length === 0) {
@@ -233,19 +225,19 @@ export const StaffDashboard: React.FC = () => {
     }
   };
 
-  const handleManualCheckIn = async (apptId: number) => {
+  const handleManualCheckIn = async (apptId) => {
     try {
       await checkInAppointment(apptId);
       alert('Citizen checked in successfully!');
       setSearchAppointments([]);
       setSearchQuery('');
       await fetchQueueList();
-    } catch (err: any) {
+    } catch (err) {
       alert(err?.detail || 'Manual check-in failed.');
     }
   };
 
-  const handleScanSuccess = async (decodedText: string) => {
+  const handleScanSuccess = async (decodedText) => {
     setIsScannerOpen(false);
     try {
       const parts = decodedText.split(':');
@@ -258,7 +250,7 @@ export const StaffDashboard: React.FC = () => {
       await checkInAppointment(apptId, token);
       alert('Citizen checked in successfully!');
       await fetchQueueList();
-    } catch (err: any) {
+    } catch (err) {
       alert(err?.detail || 'Scan check-in failed.');
     }
   };
@@ -524,7 +516,7 @@ export const StaffDashboard: React.FC = () => {
                   {searchAppointments.map((appt) => (
                     <div key={appt.id} className="p-3.5 bg-slate-950/40 flex items-center justify-between gap-4">
                       <div>
-                        <div className="text-sm font-bold text-white">{(appt as any).citizen_name || 'Citizen'}</div>
+                        <div className="text-sm font-bold text-white">{appt.citizen_name || 'Citizen'}</div>
                         <div className="text-xs text-slate-450 mt-0.5">Booking #{appt.id} • Scheduled: {new Date(appt.scheduled_time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
                       <button

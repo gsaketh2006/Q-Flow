@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { 
   getOffices, createOffice, updateOffice, deleteOffice,
@@ -7,48 +7,45 @@ import {
 } from '../services/offices';
 import { getServices, createService, updateService, deleteService } from '../services/services';
 import { getSummaryReport, getOfficeReport, getStaffReport } from '../services/reports';
-import type { Office, Counter, Holiday } from '../types/office';
-import type { Service } from '../types/service';
-import type { SummaryReport, OfficeReport } from '../types/report';
 import { 
   LogOut, Plus, Trash2, Edit2, X, Calendar, BarChart2, 
   Briefcase, MapPin, Clock, Activity, Users, Hourglass, CheckCircle
 } from 'lucide-react';
 
-export const AdminDashboard: React.FC = () => {
+export const AdminDashboard = () => {
   const { logout } = useAuth();
   
   // Navigation State
-  const [activeTab, setActiveTab] = useState<'offices' | 'services' | 'holidays' | 'reports'>('offices');
+  const [activeTab, setActiveTab] = useState('offices');
   
   // Data States
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [counters, setCounters] = useState<Counter[]>([]);
-  const [holidays, setHolidays] = useState<Holiday[]>([]);
-  const [selectedOfficeId, setSelectedOfficeId] = useState<number | null>(null);
+  const [offices, setOffices] = useState([]);
+  const [services, setServices] = useState([]);
+  const [counters, setCounters] = useState([]);
+  const [holidays, setHolidays] = useState([]);
+  const [selectedOfficeId, setSelectedOfficeId] = useState(null);
   
   // Analytics State
-  const [summaryReport, setSummaryReport] = useState<SummaryReport | null>(null);
-  const [officeReport, setOfficeReport] = useState<OfficeReport | null>(null);
-  const [selectedReportOfficeId, setSelectedReportOfficeId] = useState<number | null>(null);
-  const [staffReportId, setStaffReportId] = useState<string>('');
-  const [staffReportResult, setStaffReportResult] = useState<any | null>(null);
+  const [summaryReport, setSummaryReport] = useState(null);
+  const [officeReport, setOfficeReport] = useState(null);
+  const [selectedReportOfficeId, setSelectedReportOfficeId] = useState(null);
+  const [staffReportId, setStaffReportId] = useState('');
+  const [staffReportResult, setStaffReportResult] = useState(null);
 
   // Modal / Form States
   const [isOfficeModalOpen, setIsOfficeModalOpen] = useState(false);
-  const [editingOffice, setEditingOffice] = useState<Office | null>(null);
+  const [editingOffice, setEditingOffice] = useState(null);
   const [officeName, setOfficeName] = useState('');
   const [officeAddress, setOfficeAddress] = useState('');
   const [officeCity, setOfficeCity] = useState('');
 
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [editingService, setEditingService] = useState(null);
   const [serviceName, setServiceName] = useState('');
   const [serviceDuration, setServiceDuration] = useState(15);
 
   const [counterName, setCounterName] = useState('');
-  const [counterStaffId, setCounterStaffId] = useState<string>('');
+  const [counterStaffId, setCounterStaffId] = useState('');
 
   const [holidayDate, setHolidayDate] = useState('');
   const [holidayDesc, setHolidayDesc] = useState('');
@@ -87,7 +84,7 @@ export const AdminDashboard: React.FC = () => {
   }, [activeTab, selectedOfficeId, selectedReportOfficeId]);
 
   // --- OFFICES CRUD ---
-  const handleOfficeSubmit = async (e: React.FormEvent) => {
+  const handleOfficeSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editingOffice) {
@@ -114,7 +111,7 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleEditOffice = (office: Office) => {
+  const handleEditOffice = (office) => {
     setEditingOffice(office);
     setOfficeName(office.name);
     setOfficeAddress(office.address);
@@ -122,7 +119,7 @@ export const AdminDashboard: React.FC = () => {
     setIsOfficeModalOpen(true);
   };
 
-  const handleDeleteOffice = async (id: number) => {
+  const handleDeleteOffice = async (id) => {
     if (!window.confirm('Deactivate this office branch?')) return;
     try {
       await deleteOffice(id);
@@ -133,7 +130,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   // --- SERVICES CRUD ---
-  const handleServiceSubmit = async (e: React.FormEvent) => {
+  const handleServiceSubmit = async (e) => {
     e.preventDefault();
     if (!selectedOfficeId) return;
     try {
@@ -153,21 +150,20 @@ export const AdminDashboard: React.FC = () => {
       setEditingService(null);
       setServiceName('');
       setServiceDuration(15);
-      // Reload
       getServices(selectedOfficeId).then(setServices);
     } catch (err) {
       alert('Failed to save service.');
     }
   };
 
-  const handleEditService = (service: Service) => {
+  const handleEditService = (service) => {
     setEditingService(service);
     setServiceName(service.name);
     setServiceDuration(service.avg_duration_minutes);
     setIsServiceModalOpen(true);
   };
 
-  const handleDeleteService = async (id: number) => {
+  const handleDeleteService = async (id) => {
     if (!window.confirm('Deactivate this service?')) return;
     try {
       await deleteService(id);
@@ -178,7 +174,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   // --- COUNTERS CRUD ---
-  const handleAddCounter = async (e: React.FormEvent) => {
+  const handleAddCounter = async (e) => {
     e.preventDefault();
     if (!selectedOfficeId || !counterName) return;
     try {
@@ -192,7 +188,7 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteCounter = async (counterId: number) => {
+  const handleDeleteCounter = async (counterId) => {
     if (!selectedOfficeId || !window.confirm('Delete this counter?')) return;
     try {
       await deleteCounter(selectedOfficeId, counterId);
@@ -203,7 +199,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   // --- HOLIDAYS CRUD ---
-  const handleAddHoliday = async (e: React.FormEvent) => {
+  const handleAddHoliday = async (e) => {
     e.preventDefault();
     if (!selectedOfficeId || !holidayDate || !holidayDesc) return;
     try {
@@ -216,7 +212,7 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteHoliday = async (holidayId: number) => {
+  const handleDeleteHoliday = async (holidayId) => {
     if (!selectedOfficeId || !window.confirm('Delete this holiday?')) return;
     try {
       await deleteHoliday(selectedOfficeId, holidayId);
@@ -227,7 +223,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   // --- REPORT QUERY ---
-  const handleStaffReportQuery = async (e: React.FormEvent) => {
+  const handleStaffReportQuery = async (e) => {
     e.preventDefault();
     if (!staffReportId) return;
     try {
@@ -282,7 +278,7 @@ export const AdminDashboard: React.FC = () => {
             }`}
           >
             <Briefcase size={18} />
-            Services & Counters
+            Services &amp; Counters
           </button>
           <button
             onClick={() => setActiveTab('holidays')}
@@ -300,7 +296,7 @@ export const AdminDashboard: React.FC = () => {
             }`}
           >
             <BarChart2 size={18} />
-            Analytics & Reports
+            Analytics &amp; Reports
           </button>
 
           {/* Office selector dropdown for Services/Holidays tab */}
@@ -504,7 +500,7 @@ export const AdminDashboard: React.FC = () => {
           {activeTab === 'holidays' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl font-bold text-white">Holidays & Office Closures</h2>
+                <h2 className="text-xl font-bold text-white">Holidays &amp; Office Closures</h2>
                 <p className="text-slate-400 text-xs mt-0.5">Schedule closures. Booking wizard automatically blocks appointment slots on holidays.</p>
               </div>
 
